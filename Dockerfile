@@ -97,10 +97,10 @@ RUN set -xe; \
 
 # Build QWT
 ARG QWT_VERSION=qwt-6.1
-ARG QT_INSTALL_PREFIX=/usr/local/qwt-${QWT_VERSION}
 RUN set -xe; \
     svn export svn://svn.code.sf.net/p/qwt/code/branches/qwt-6.1; \
     cd qwt-6.1; \
+    sed -r -i 's|^(\s+)QWT_INSTALL_PREFIX(\s+)=(\s+)\/usr\/local.*$|\1QWT_INSTALL_PREFIX\2=\3/usr|g' qwtconfig.pri; \
     qmake-qt5 qwt.pro; \
     make -j$(nproc); \
     make install;
@@ -123,8 +123,6 @@ RUN set -xe; \
 
 # Copy our entrypoint into the container.
 COPY ./runtime-assets /
-
-COPY --chown=hertz:hertz ./alpine-packages /hertz/abuild
 
 # Build arguments.
 ARG VCS_REF
