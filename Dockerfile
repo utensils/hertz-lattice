@@ -51,6 +51,7 @@ RUN set -xe; \
         alsa-lib-dev \
         autoconf \
         automake \
+        bash \
         boost-dev \
         doxygen \
         fftw \
@@ -61,6 +62,9 @@ RUN set -xe; \
         gsl-dev \
         jack \
         jack-dev \
+        man-pages \
+        mandoc \
+        mandoc-dev \
         mpd \
         oxygen \
         portaudio \
@@ -77,6 +81,8 @@ RUN set -xe; \
         qt5-qtbase-dev \
         qt5-qtsvg \
         qt5-qtsvg-dev \
+        qt5-qttools \
+        qt5-qttools-dev \
         qt5-qtwebglplugin \
         qt5-qtwebglplugin-dev \
         qt5-qtwebkit \
@@ -85,6 +91,7 @@ RUN set -xe; \
         sdl-dev \
         subversion \
         swig \
+        vim \
         zeromq \
         zeromq-dev;
 
@@ -116,6 +123,8 @@ RUN set -xe; \
 
 # Copy our entrypoint into the container.
 COPY ./runtime-assets /
+
+COPY --chown=hertz:hertz ./alpine-packages /hertz/abuild
 
 # Build arguments.
 ARG VCS_REF
