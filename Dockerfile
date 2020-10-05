@@ -42,6 +42,7 @@ RUN set -xe; \
 RUN set -xe; \
     echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories; \
     apk add --upate --no-cache \
+        cppzmq@testing \
         log4cpp-dev@testing \
         log4cpp@testing \
         thrift-dev@testing \
@@ -60,8 +61,11 @@ RUN set -xe; \
         gmp-dev \
         gsl \
         gsl-dev \
+        gsm \
+        gsm-dev \
         jack \
         jack-dev \
+        libtool \
         man-pages \
         mandoc \
         mandoc-dev \
@@ -91,9 +95,43 @@ RUN set -xe; \
         sdl-dev \
         subversion \
         swig \
+        texinfo \
         vim \
+        yasm \
+        yasm-dev \
         zeromq \
         zeromq-dev;
+
+# Build MPIR
+ARG MPIR_VERSION=mpir-3.0.0
+RUN set -xe ; \
+    git clone --depth 1 https://github.com/wbhart/mpir.git --branch ${MPIR_VERSION}; \
+    cd mpir; \
+    autoreconf -i; \
+    ./configure; \
+    make -j $(getconf _NPROCESSORS_ONLN); \
+    make install;
+
+# Build codec2
+ARG CODEC2_VERSION=v0.9.2
+RUN set -xe; \
+    git clone --depth 1 https://github.com/drowe67/codec2.git --branch ${CODEC2_VERSION}; \
+    cd codec2; \
+    mkdir -p build; \
+    cd build; \
+    cmake ..; \
+    make -j $(getconf _NPROCESSORS_ONLN); \
+    make install;
+
+# Build UHD
+ARG UHD_VERSION=v4.0.0.0
+RUN set -xe; \
+    git clone --depth 1 https://github.com/EttusResearch/uhd.git --branch ${UHD_VERSION}; \
+    mkdir -p uhd/host/build; \
+    cd uhd/host/build; \
+    cmake ..; \
+    make -j $(getconf _NPROCESSORS_ONLN); \
+    make install;
 
 # Build QWT
 ARG QWT_VERSION=qwt-6.1
@@ -102,7 +140,7 @@ RUN set -xe; \
     cd qwt-6.1; \
     sed -r -i 's|^(\s+)QWT_INSTALL_PREFIX(\s+)=(\s+)\/usr\/local.*$|\1QWT_INSTALL_PREFIX\2=\3/usr|g' qwtconfig.pri; \
     qmake-qt5 qwt.pro; \
-    make -j$(nproc); \
+    make -j $(getconf _NPROCESSORS_ONLN); \
     make install;
 
 # Build GNU Radio
@@ -113,8 +151,8 @@ RUN set -xe; \
     git checkout "${GNU_RADIO_VERSION}"; \
     mkdir -p build; \
     cd build; \
-    cmake -Wno-dev -DCMAKE_BUILD_TYPE=Release  -DENABLE_INTERNAL_VOLK=OFF -DPYTHON_EXECUTABLE=/usr/bin/python3 ../; \
-    make -j$(nproc); \
+    cmake -Wno-dev -DCMAKE_BUILD_TYPE=Release -DZEROMQ_INCLUDE_DIRS=/usr/include -DMPIRXX_LIBRARY=/usr/local/lib -DMPIR_INCLUDE_DIR=/usr/local/include -DENABLE_INTERNAL_VOLK=OFF -DPYTHON_EXECUTABLE=/usr/bin/python3 ../; \
+    make -j $(getconf _NPROCESSORS_ONLN); \
     make install;
 
 # Ensure hertz ownership

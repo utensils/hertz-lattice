@@ -7,6 +7,9 @@
 
 GNU Radio & Friends in a Docker image. **This image does not do much yet...**
 
+## TODO
+Build gr-gsm using the maint-fork mentioned in this github [issue](https://github.com/ptrkrysik/gr-gsm/issues/475)
+
 ## Building
 
 To build the project:
